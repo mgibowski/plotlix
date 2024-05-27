@@ -1,0 +1,68 @@
+<.header>
+  Your plots
+  <:actions>
+    <.link patch={~p"/plots/yours/new"}>
+      <.button>New Plot</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table id="plots" rows={@streams.plots}>
+  <:col :let={{_id, plot}} label="Name"><%= plot.name %></:col>
+  <:col :let={{_id, plot}} label="Dataset name"><%= plot.dataset_name %></:col>
+  <:col :let={{_id, plot}} label="Expression"><%= plot.expression %></:col>
+  <:col :let={{_id, plot}} label="Plot">
+    <div
+      id={"plot-#{plot.id}"}
+      phx-hook="Plot"
+      data-plot-valid="true"
+      data-series={plot.plotly_params.series}
+      data-x-title={plot.plotly_params.x_title}
+      data-y-title={plot.plotly_params.y_title}
+    >
+      <div id={"plot-#{plot.id}-target"} phx-update="ignore" class="w-96 h-64 mx-auto"></div>
+    </div>
+  </:col>
+  <:action :let={{_id, plot}}>
+    <.link patch={~p"/plots/yours/#{plot}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{_id, plot}}>
+    <.link patch={~p"/plots/yours/#{plot}/share"}>Share</.link>
+  </:action>
+  <:action :let={{id, plot}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: plot.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="plot-modal"
+  show
+  on_cancel={JS.patch(~p"/plots/yours")}
+>
+  <.live_component
+    module={PlotlixWeb.PlotLive.FormComponent}
+    id={@plot.id || :new}
+    title={@page_title}
+    action={@live_action}
+    plot={@plot}
+    current_user={@current_user}
+    patch={~p"/plots/yours"}
+  />
+</.modal>
+
+<.modal :if={@live_action == :share} id="plot-modal" show on_cancel={JS.patch(~p"/plots/yours")}>
+  <.live_component
+    module={PlotlixWeb.PlotLive.ShareComponent}
+    id={@plot.id}
+    title={@page_title}
+    action={@live_action}
+    plot={@plot}
+    patch={~p"/plots/yours"}
+  />
+</.modal>

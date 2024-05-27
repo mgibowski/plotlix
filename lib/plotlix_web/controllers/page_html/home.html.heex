@@ -1,0 +1,15 @@
+<.flash_group flash={@flash} />
+<%= unless @current_user do %>
+  <div class="flex items-center justify-center h-screen">
+    <div class="text-center text-2xl font-semibold text-gray-700">
+      You need to <.link href={~p"/users/register"} class="underline">register</.link>
+      or <.link href={~p"/users/log_in"} class="underline">log in</.link>
+      to use this page
+    </div>
+  </div>
+<% else %>
+  <!-- Dirty workaround to avoid updating main logged in path in many places -->
+  <script>
+    window.location = "/plots/yours"
+  </script>
+<% end %>
