@@ -3,6 +3,7 @@ defmodule PlotlixWeb.PlotLive.FormComponent do
   use PlotlixWeb, :live_component
 
   alias Ecto.Changeset
+  alias Plotlix.Datasets
   alias Plotlix.Plots
 
   @impl true
@@ -23,7 +24,21 @@ defmodule PlotlixWeb.PlotLive.FormComponent do
       >
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:dataset_name]} type="text" label="Dataset name" />
+        <p class="text-sm leading-6 text-gray-600">
+          One of the datasets (csv file names) from
+          the
+          <.link navigate="https://github.com/plotly/datasets" class="underline" target="_blank">
+            plotly
+          </.link>
+          repository (ex: iris)
+        </p>
         <.input field={@form[:expression]} type="text" label="Expression" />
+        <p class="text-sm leading-6 text-gray-600">
+          A single column, or a binary expression with +, -, *, or / operation between two columns.
+          <%= if assigns[:available_column_names]  do %>
+            <br /> Available column names: <%= @available_column_names %>
+          <% end %>
+        </p>
         <%= if assigns[:valid?]  do %>
           <div
             id="edited-plot"
@@ -108,25 +123,49 @@ defmodule PlotlixWeb.PlotLive.FormComponent do
   end
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do
-    socket =
-      if changeset.valid? do
-        dataset_name = Changeset.get_field(changeset, :dataset_name)
-        expression = Changeset.get_field(changeset, :expression)
+    socket
+    |> assign(:form, to_form(changeset))
+    |> assign_plotly_params(changeset)
+    |> assign_available_column_names(changeset)
+  end
 
-        case Plots.plotly_params(dataset_name, expression) do
-          {:ok, plotly_params} ->
-            socket
-            |> assign(:valid?, true)
-            |> assign(:plotly_params, plotly_params)
+  defp assign_plotly_params(socket, %Ecto.Changeset{} = changeset) do
+    if changeset.valid? do
+      dataset_name = Changeset.get_field(changeset, :dataset_name)
+      expression = Changeset.get_field(changeset, :expression)
 
-          _ ->
-            assign(socket, :valid?, false)
-        end
-      else
-        assign(socket, :valid?, false)
+      case Plots.plotly_params(dataset_name, expression) do
+        {:ok, plotly_params} ->
+          socket
+          # Relying on `changeset.valid?` is not enough, as the form is valid when it's empty
+          |> assign(:valid?, true)
+          |> assign(:plotly_params, plotly_params)
+
+        _ ->
+          assign(socket, :valid?, false)
+      end
+    else
+      assign(socket, :valid?, false)
+    end
+  end
+
+  defp assign_available_column_names(socket, %Ecto.Changeset{} = changeset) do
+    available_column_names =
+      if dataset_name_valid?(changeset) do
+        changeset
+        |> Changeset.fetch_field!(:dataset_name)
+        |> Datasets.get_column_names()
+        |> Enum.join(", ")
       end
 
-    assign(socket, :form, to_form(changeset))
+    assign(socket, :available_column_names, available_column_names)
+  end
+
+  defp dataset_name_valid?(%Changeset{valid?: true}), do: true
+
+  defp dataset_name_valid?(%Changeset{errors: errors} = changeset) do
+    not Enum.any?(errors, fn {field_name, _} -> field_name == :dataset_name end) and
+      Changeset.fetch_field(changeset, :dataset_name) != :error
   end
 
   defp notify_parent(msg), do: send(self(), {__MODULE__, msg})

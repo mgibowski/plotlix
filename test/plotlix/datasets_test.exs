@@ -17,6 +17,12 @@ defmodule Plotlix.DatasetsTest do
     end
   end
 
+  describe "get_column_names/1" do
+    test "iris" do
+      assert ["SepalLength", "SepalWidth", "PetalLength", "PetalWidth", "Name"] == Datasets.get_column_names("iris")
+    end
+  end
+
   describe "validate_expression/2" do
     test "iris and PetalLength" do
       assert [] == Datasets.validate_expression("iris", "PetalLength")

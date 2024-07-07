@@ -31,22 +31,26 @@ let Hooks = {};
 Hooks.Plot = {
   mounted() {
     dataSeriesValue = this.el.getAttribute("data-series");
-    if (dataSeriesValue) {
-      plotData = JSON.parse(dataSeriesValue);
-      targetId = this.el.id + "-target";
-      target = document.getElementById(targetId);
-      plotData.type = "histogram";
-      xTitle = this.el.getAttribute("data-x-title");
-      yTitle = this.el.getAttribute("data-y-title");
+    //    if (dataSeriesValue) {
+    plotData = JSON.parse(dataSeriesValue);
+    targetId = this.el.id + "-target";
+    target = document.getElementById(targetId);
+    plotData.type = "histogram";
+    xTitle = this.el.getAttribute("data-x-title");
+    yTitle = this.el.getAttribute("data-y-title");
 
-      Plotly.newPlot(target, [plotData], {
-        xaxis: { title: xTitle },
-        yaxis: { title: yTitle },
-        margin: { t: 0 },
-      });
-    } else {
-      console.log("No valid data series");
-    }
+    Plotly.newPlot(target, [plotData], {
+      xaxis: { title: xTitle },
+      yaxis: { title: yTitle },
+      margin: { t: 0 },
+    });
+    // } else {
+    //   console.log("No valid data series");
+    // }
+  },
+
+  updated(event) {
+    console.log(event);
   },
 };
 

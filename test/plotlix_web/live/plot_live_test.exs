@@ -55,6 +55,19 @@ defmodule PlotlixWeb.PlotLiveTest do
       assert html =~ "some name"
     end
 
+    test "suggests available column names", %{conn: conn} do
+      {:ok, index_live, _html} = live(conn, ~p"/plots/yours")
+
+      assert index_live |> element("a", "New Plot") |> render_click() =~
+               "New Plot"
+
+      assert_patch(index_live, ~p"/plots/yours/new")
+
+      assert index_live
+             |> form("#plot-form", plot: @invalid_expression_attrs)
+             |> render_change() =~ "Available column names: SepalLength, SepalWidth"
+    end
+
     test "updates plot in listing", %{conn: conn, plot: plot} do
       {:ok, index_live, _html} = live(conn, ~p"/plots/yours")
 

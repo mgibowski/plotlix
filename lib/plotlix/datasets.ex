@@ -39,6 +39,12 @@ defmodule Plotlix.Datasets do
     end
   end
 
+  def get_column_names(dataset_name) do
+    with {:ok, df} <- get_data_frame(dataset_name) do
+      DF.names(df)
+    end
+  end
+
   ## Helpers
   ## Datasets are cached with :persistent_term for simplicity and performance
 
