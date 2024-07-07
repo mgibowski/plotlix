@@ -25,7 +25,7 @@ defmodule Plotlix.Datasets do
 
   def validate_expression(dataset_name, expression) do
     with {:ok, df} <- get_data_frame(dataset_name),
-         {:ok, _expression} <- Expression.parse(df, expression) do
+         :ok <- Expression.validate(df, expression) do
       []
     else
       {:error, error_msg} ->

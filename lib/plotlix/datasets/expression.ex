@@ -5,30 +5,17 @@ defmodule Plotlix.Datasets.Expression do
 
   ## API
 
-  def parse(df, expression) do
-    # Match expression pattern according to regex
-    case match_expression(expression) do
-      {:ok, {:single_column, col}} = res ->
-        # Validate column name
-        if column_exists?(df, col), do: res, else: {:error, "Invalid expression"}
-
-      {:ok, {:binary_operation, %{column1: col_1, column2: col_2}} = parsed_expression} = res ->
-        # Validate column names
-        if column_exists?(df, col_1) && column_exists?(df, col_2) do
-          # Attempt to evaluate the expression
-          try do
-            # The underlying `DF.mutate/2` from Explorer may raise an error when column types are mismatched
-            apply_expression(df, parsed_expression)
-            res
-          rescue
-            ArgumentError -> {:error, "Invalid expression - mismatched column types"}
-          end
-        else
-          {:error, "Invalid expression"}
-        end
-
-      error ->
-        error
+  # TODO: delclare types: :ok | {:error, binary()}
+  def validate(df, expression) do
+    with {:ok, expression} <- parse(df, expression) do
+      # Attempt to evaluate the expression
+      try do
+        # The underlying `DF.mutate/2` from Explorer may raise an error when column types are mismatched
+        _discarded = apply_expression(df, expression)
+        :ok
+      rescue
+        ArgumentError -> {:error, "Invalid expression - mismatched column types"}
+      end
     end
   end
 
@@ -39,6 +26,22 @@ defmodule Plotlix.Datasets.Expression do
   end
 
   ## Helpers
+
+  defp parse(df, expression) do
+    # Match expression pattern using regex
+    case match_expression(expression) do
+      {:ok, {:single_column, col}} = res ->
+        # Validate column name
+        if column_exists?(df, col), do: res, else: {:error, "Invalid expression"}
+
+      {:ok, {:binary_operation, %{column1: col_1, column2: col_2}}} = res ->
+        # Validate column names
+        if column_exists?(df, col_1) && column_exists?(df, col_2), do: res, else: {:error, "Invalid expression"}
+
+      error ->
+        error
+    end
+  end
 
   defp match_expression(expression) do
     regex_single_column = ~r/^[\w\s]+$/
