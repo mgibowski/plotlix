@@ -13,6 +13,7 @@ defmodule PlotlixWeb.PlotLiveTest do
   }
   @invalid_attrs %{name: nil, dataset_name: nil, expression: nil}
   @invalid_expression_attrs %{name: "some name", dataset_name: "iris", expression: "Month"}
+  @mismatched_column_types_attrs %{name: "some name", dataset_name: "iris", expression: "SepalWidth + Name"}
 
   defp create_plot(%{conn: conn}) do
     user = user_fixture()
@@ -93,6 +94,19 @@ defmodule PlotlixWeb.PlotLiveTest do
       html = render(index_live)
       assert html =~ "Plot updated successfully"
       assert html =~ "some updated name"
+    end
+
+    test "reports error on expression with mismatched column types", %{conn: conn, plot: plot} do
+      {:ok, index_live, _html} = live(conn, ~p"/plots/yours")
+
+      assert index_live |> element("#plots-#{plot.id} a", "Edit") |> render_click() =~
+               "Edit Plot"
+
+      assert_patch(index_live, ~p"/plots/yours/#{plot}/edit")
+
+      assert index_live
+             |> form("#plot-form", plot: @mismatched_column_types_attrs)
+             |> render_change() =~ "Invalid expression"
     end
 
     @tag :skip

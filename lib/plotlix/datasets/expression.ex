@@ -9,12 +9,23 @@ defmodule Plotlix.Datasets.Expression do
     # Match expression pattern according to regex
     case match_expression(expression) do
       {:ok, {:single_column, col}} = res ->
-        # Validate col name
+        # Validate column name
         if column_exists?(df, col), do: res, else: {:error, "Invalid expression"}
 
-      {:ok, {:binary_operation, %{column1: col_1, column2: col_2}}} = res ->
-        # validate col names
-        if column_exists?(df, col_1) && column_exists?(df, col_2), do: res, else: {:error, "Invalid expression"}
+      {:ok, {:binary_operation, %{column1: col_1, column2: col_2}} = parsed_expression} = res ->
+        # Validate column names
+        if column_exists?(df, col_1) && column_exists?(df, col_2) do
+          # Attempt to evaluate the expression
+          try do
+            # The underlying `DF.mutate/2` from Explorer may raise an error when column types are mismatched
+            apply_expression(df, parsed_expression)
+            res
+          rescue
+            ArgumentError -> {:error, "Invalid expression - mismatched column types"}
+          end
+        else
+          {:error, "Invalid expression"}
+        end
 
       error ->
         error
