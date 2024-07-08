@@ -5,7 +5,6 @@ defmodule Plotlix.Datasets.Expression do
 
   ## API
 
-  # TODO: delclare types: :ok | {:error, binary()}
   def validate(df, expression) do
     with {:ok, expression} <- parse(df, expression) do
       # Attempt to evaluate the expression

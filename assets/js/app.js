@@ -31,7 +31,6 @@ let Hooks = {};
 Hooks.Plot = {
   mounted() {
     dataSeriesValue = this.el.getAttribute("data-series");
-    //    if (dataSeriesValue) {
     plotData = JSON.parse(dataSeriesValue);
     targetId = this.el.id + "-target";
     target = document.getElementById(targetId);
@@ -44,13 +43,6 @@ Hooks.Plot = {
       yaxis: { title: yTitle },
       margin: { t: 0 },
     });
-    // } else {
-    //   console.log("No valid data series");
-    // }
-  },
-
-  updated(event) {
-    console.log(event);
   },
 };
 

@@ -39,11 +39,10 @@ defmodule PlotlixWeb.PlotLive.FormComponent do
             <br /> Available column names: <%= @available_column_names %>
           <% end %>
         </p>
-        <%= if assigns[:valid?]  do %>
+        <%= if assigns[:plotable?]  do %>
           <div
             id="edited-plot"
             phx-hook="Plot"
-            data-plot-valid={@valid?}
             data-series={@plotly_params.series}
             data-x-title={@plotly_params.x_title}
             data-y-title={@plotly_params.y_title}
@@ -137,15 +136,14 @@ defmodule PlotlixWeb.PlotLive.FormComponent do
       case Plots.plotly_params(dataset_name, expression) do
         {:ok, plotly_params} ->
           socket
-          # Relying on `changeset.valid?` is not enough, as the form is valid when it's empty
-          |> assign(:valid?, true)
+          |> assign(:plotable?, true)
           |> assign(:plotly_params, plotly_params)
 
         _ ->
-          assign(socket, :valid?, false)
+          assign(socket, :plotable?, false)
       end
     else
-      assign(socket, :valid?, false)
+      assign(socket, :plotable?, false)
     end
   end
 
