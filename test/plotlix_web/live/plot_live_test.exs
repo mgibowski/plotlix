@@ -109,7 +109,6 @@ defmodule PlotlixWeb.PlotLiveTest do
              |> render_change() =~ "Invalid expression"
     end
 
-    @tag :skip
     test "deletes plot in listing", %{conn: conn, plot: plot} do
       {:ok, index_live, _html} = live(conn, ~p"/plots/yours")
 
