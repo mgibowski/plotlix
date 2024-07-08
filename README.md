@@ -2,7 +2,7 @@
 
 A simple LiveView application for creating and sharing [Plotly](https://plotly.com) diagrams.
 
-Requirements are described [here](Technical Assignment Full-Stack Dev.pdf).
+Requirements are described [here](Technical%20Assignment%20Full-Stack%20Dev.pdf).
 
 ## Installation
 
