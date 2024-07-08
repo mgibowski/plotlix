@@ -65,11 +65,7 @@ defmodule PlotlixWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
-      on_mount: [
-        {PlotlixWeb.UserAuth, :ensure_authenticated},
-        {PlotlixWeb.UserAuth, :mount_current_user},
-        PlotlixWeb.Nav
-      ] do
+      on_mount: [{PlotlixWeb.UserAuth, :ensure_authenticated}, PlotlixWeb.Nav] do
       live "/plots/yours", PlotLive.YourPlots, :index
       live "/plots/yours/new", PlotLive.YourPlots, :new
       live "/plots/yours/:id/edit", PlotLive.YourPlots, :edit
