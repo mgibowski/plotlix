@@ -14,7 +14,7 @@ defmodule PlotlixWeb.PlotLive.ShareComponent do
         Share plot
       </.header>
 
-      <%= if @empty_plot_shares? do %>
+      <%= if @plot_shares_empty? do %>
         <p class="m-2 text-center text-gray-700 bg-gray-100 p-4 rounded-md">
           This plot is not yet shared with anybody
         </p>
@@ -36,7 +36,7 @@ defmodule PlotlixWeb.PlotLive.ShareComponent do
         </.table>
       <% end %>
 
-      <%= if @empty_available_accounts? do %>
+      <%= if @available_accounts_empty? do %>
         <p class="m-2 text-center text-gray-700 bg-gray-100 p-4 rounded-md">
           There are no users with whom you could share this plot
         </p>
@@ -82,14 +82,14 @@ defmodule PlotlixWeb.PlotLive.ShareComponent do
       # Map to format required by select options
       |> Enum.map(fn %{id: id, email: email} -> {email, id} end)
 
-    empty_plot_shares? = plot_shares == []
-    empty_available_accounts? = available_accounts == []
+    plot_shares_empty? = plot_shares == []
+    available_accounts_empty? = available_accounts == []
 
     socket
     |> stream(:plot_shares, plot_shares)
     |> assign(:available_accounts, available_accounts)
-    |> assign(:empty_plot_shares?, empty_plot_shares?)
-    |> assign(:empty_available_accounts?, empty_available_accounts?)
+    |> assign(:plot_shares_empty?, plot_shares_empty?)
+    |> assign(:available_accounts_empty?, available_accounts_empty?)
   end
 
   def handle_event("save", params, socket) do
