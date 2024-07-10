@@ -40,7 +40,6 @@ defmodule PlotlixWeb.PlotLive.SharedWithYou do
             id={"plot-#{plot.id}"}
             phx-hook="Plot"
             data-series={plot.plotly_params.series}
-            data-plot-valid="true"
             data-x-title={plot.plotly_params.x_title}
             data-y-title={plot.plotly_params.y_title}
           >
